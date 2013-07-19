@@ -6,6 +6,8 @@ description      "Installs/Configures bird"
 long_description IO.read(File.join(File.dirname(__FILE__), 'README.md'))
 version          "0.0.1"
 
+supports 'openbsd'
+
 %w{chef-openbsd openbsd sysctl}.each do |r|
   depends r
 end
