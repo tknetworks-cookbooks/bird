@@ -13,8 +13,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-default[:bird][:inet][:conf] = "/etc/bird.conf"
-default[:bird][:inet6][:conf] = "/etc/bird6.conf"
+default['bird']['inet']['conf'] = '/etc/bird.conf'
+default['bird']['inet6']['conf'] = '/etc/bird6.conf'
 
-default[:bird][:inet][:sock] = "/var/run/bird.ctl"
-default[:bird][:inet6][:sock] = "/var/run/bird6.ctl"
+default['bird']['inet']['sock'] = '/var/run/bird.ctl'
+default['bird']['inet6']['sock'] = '/var/run/bird6.ctl'
+
+default['bird']['inet6']['package'] = case platform
+                                      when 'openbsd'
+                                        'bird-v6'
+                                      else
+                                        'bird'
+                                      end

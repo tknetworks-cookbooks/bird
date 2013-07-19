@@ -13,25 +13,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-sysctl 'net.inet6.ip6.forwarding' do
-  value 1
-  comment 'Permit forwarding (routing) of IPv6 packets'
-end
+require 'chefspec'
 
-package node['bird']['inet6']['package'] do
-  action :install
-end
-
-template node['bird']['inet6']['conf'] do
-  owner 'root'
-  group node['etc']['passwd']['root']['gid']
-  source 'bird6.conf.erb'
-  mode 0600
-end
-
-service 'bird6' do
-  action [:enable, :start]
-  if node['platform'] == 'openbsd'
-    parameters({:flags => " -c /etc/bird6.conf -s /var/run/bird6.ctl"})
-  end
+shared_context 'openbsd' do
+  let (:chef_run) {
+    ChefSpec::ChefRunner.new do |node|
+      node.automatic_attrs['platform'] = 'openbsd'
+      node.set['etc']['passwd']['root']['gid'] = 0
+    end
+  }
 end

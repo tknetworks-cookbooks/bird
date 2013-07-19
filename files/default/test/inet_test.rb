@@ -13,25 +13,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-sysctl 'net.inet6.ip6.forwarding' do
-  value 1
-  comment 'Permit forwarding (routing) of IPv6 packets'
-end
+require 'minitest/spec'
 
-package node['bird']['inet6']['package'] do
-  action :install
-end
+describe_recipe 'bird::inet' do
+  it 'installs bird' do
+    package('bird').must_be_installed
+  end
 
-template node['bird']['inet6']['conf'] do
-  owner 'root'
-  group node['etc']['passwd']['root']['gid']
-  source 'bird6.conf.erb'
-  mode 0600
-end
+  it 'creates bird.conf' do
+    conf = file('/etc/bird.conf')
+    conf.must_exist.with(:owner, 'root').with(:group, 'wheel').with(:mode, 0600)
+    conf.must_include 'protocol kernel {'
+  end
 
-service 'bird6' do
-  action [:enable, :start]
-  if node['platform'] == 'openbsd'
-    parameters({:flags => " -c /etc/bird6.conf -s /var/run/bird6.ctl"})
+  it 'starts/enables bird' do
+    s = service('bird')
+    s.must_be_enabled
+    s.must_be_running
+    assert_sh "grep '\\-c /etc/bird.conf -s /var/run/bird.ctl' /etc/rc.conf.local"
+  end
+
+  it 'enable ip forwarding' do
+    assert_sh '[ "$(sysctl net.inet.ip.forwarding | cut -d= -f2)" = "1" ]'
   end
 end

@@ -13,28 +13,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-
-template node[:bird][:inet][:conf] do
-  owner "root"
-  group node[:etc][:passwd][:root][:gid]
-  source "bird.conf"
+sysctl "net.inet.ip.forwarding" do
+  value 1
+  comment "Permit forwarding (routing) of IPv4 packets"
 end
 
-if node[:platform] == "openbsd"
-  sysctl "net.inet.ip.forwarding" do
-    value 1
-    comment "Permit forwarding (routing) of IPv4 packets"
-  end
-  template "/etc/rc.d/bird" do
-    source "bird"
-    mode 0555
-    owner "root"
-    group node[:etc][:passwd][:root][:gid]
-  end
-  openbsd_rc_conf "bird" do
-    flags " -c /etc/bird.conf -s /var/run/bird.ctl"
-  end
-  openbsd_pkg_script "bird" do
-    action [:enable, :start]
+package 'bird' do
+  action :install
+end
+
+template node['bird']['inet']['conf'] do
+  owner 'root'
+  group node['etc']['passwd']['root']['gid']
+  mode 0600
+  source 'bird.conf.erb'
+end
+
+service "bird" do
+  action [:enable, :start]
+  if node['platform'] == 'openbsd'
+    parameters({:flags => " -c /etc/bird.conf -s /var/run/bird.ctl"})
   end
 end
