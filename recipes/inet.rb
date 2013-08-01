@@ -32,6 +32,7 @@ end
 service "bird" do
   action [:enable, :start]
   if node['platform'] == 'openbsd'
-    parameters({:flags => " -c /etc/bird.conf -s /var/run/bird.ctl"})
+    parameters({:flags => " -c /etc/bird.conf -s /var/run/bird.ctl",
+                :pkg_script => true})
   end
 end

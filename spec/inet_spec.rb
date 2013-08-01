@@ -37,7 +37,9 @@ describe 'bird::inet' do
     it 'should enable/start bird' do
       expect(chef_run).to enable_service 'bird'
       expect(chef_run).to start_service 'bird'
-      expect(chef_run.service('bird').parameters).to eq({:flags => " -c /etc/bird.conf -s /var/run/bird.ctl"})
+      params = {:flags => " -c /etc/bird.conf -s /var/run/bird.ctl",
+                :pkg_script => true}
+      expect(chef_run.service('bird').parameters).to eq(params)
     end
   end
 end

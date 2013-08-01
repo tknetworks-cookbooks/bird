@@ -32,6 +32,7 @@ end
 service 'bird6' do
   action [:enable, :start]
   if node['platform'] == 'openbsd'
-    parameters({:flags => " -c /etc/bird6.conf -s /var/run/bird6.ctl"})
+    parameters({:flags => " -c /etc/bird6.conf -s /var/run/bird6.ctl",
+                :pkg_script => true})
   end
 end
